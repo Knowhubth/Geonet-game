@@ -1,0 +1,1023 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ภาพคลี่หรรษา — เกมรูปทรงเรขาคณิต อนุบาล–ป.6</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Mali:wght@600;700&family=Mitr:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#EEF5FF; --grid:rgba(47,123,234,.10); --card:#FFFFFF; --sheet:#FFFDF6;
+  --ink:#22305A; --muted:#5B6A92; --line:#22305A;
+  --tomato:#FF6B5E; --sun:#FFC93C; --leaf:#3DBE6B; --sea:#2F7BEA; --grape:#8A5CF6; --pink:#FF7EB6;
+  --ok:#1F9D55; --no:#E0483C;
+  --fh:"Mali","Mitr",system-ui,sans-serif; --fb:"Mitr","Sarabun",system-ui,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--paper:#18203D;--grid:rgba(121,174,245,.10);--card:#24305A;--ink:#F2F6FF;--muted:#AEBBDD;--line:#0E1430}}
+:root[data-theme="dark"]{--paper:#18203D;--grid:rgba(121,174,245,.10);--card:#24305A;--ink:#F2F6FF;--muted:#AEBBDD;--line:#0E1430}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;min-height:100vh;color:var(--ink);font-family:var(--fb);font-size:17px;line-height:1.55;
+  background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:26px 26px;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:560px;margin:0 auto;padding:16px 14px 40px}
+h1,h2,h3{font-family:var(--fh);margin:0;line-height:1.2}
+[hidden]{display:none!important}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sea);outline-offset:3px}
+
+/* chunky paper buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:3px solid var(--line);border-radius:16px;
+  padding:12px 18px;font-family:var(--fh);font-size:1.15rem;background:var(--sun);color:#22305A;
+  box-shadow:0 5px 0 var(--line);transition:transform .08s,box-shadow .08s}
+.btn:active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.btn.sea{background:var(--sea);color:#fff}.btn.leaf{background:var(--leaf);color:#fff}.btn.tomato{background:var(--tomato);color:#fff}
+.btn.grape{background:var(--grape);color:#fff}.btn.ghost{background:var(--card);color:var(--ink)}
+.btn.block{width:100%}.btn.sm{padding:7px 12px;font-size:.95rem;border-radius:12px;box-shadow:0 3px 0 var(--line)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.card{background:var(--card);border:3px solid var(--line);border-radius:20px;padding:16px;box-shadow:0 6px 0 var(--line)}
+.input{width:100%;font:inherit;font-size:1.15rem;padding:12px 14px;border:3px solid var(--line);border-radius:14px;background:#fff;color:#22305A}
+.muted{color:var(--muted)}.center{text-align:center}
+.row{display:flex;gap:10px;align-items:center}.grow{flex:1}
+
+/* logo: letters as paper tiles */
+.logo{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin:8px 0 6px}
+.logo span{font-family:var(--fh);font-size:2.1rem;line-height:1;padding:8px 10px 6px;border:3px solid var(--line);border-radius:10px;color:#fff;box-shadow:0 4px 0 var(--line)}
+.logo span:nth-child(5n+1){background:var(--tomato);transform:rotate(-4deg)}
+.logo span:nth-child(5n+2){background:var(--sun);color:#22305A;transform:rotate(3deg)}
+.logo span:nth-child(5n+3){background:var(--leaf);transform:rotate(-2deg)}
+.logo span:nth-child(5n+4){background:var(--sea);transform:rotate(4deg)}
+.logo span:nth-child(5n+5){background:var(--grape);transform:rotate(-3deg)}
+.tag{text-align:center;color:var(--muted);margin:4px 0 14px}
+
+/* 3D fold */
+.stage{position:relative;height:230px;perspective:700px;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.fspin{transform-style:preserve-3d}
+.fspin.go{animation:spin 9s linear infinite}
+@keyframes spin{to{transform:rotateY(360deg)}}
+.fnet{position:relative;transform-style:preserve-3d;transition:transform 1.1s cubic-bezier(.4,.1,.2,1)}
+.fface{position:absolute;width:var(--s);height:var(--s);border:3px solid #22305A;border-radius:4px;transform-style:preserve-3d;
+  display:flex;align-items:center;justify-content:center;font-family:var(--fh);font-size:1.6rem;color:#fff;
+  -webkit-text-stroke:1px #22305A;transition:transform .7s cubic-bezier(.5,.1,.3,1);backface-visibility:visible}
+.fface>.fface{top:0;left:0}
+.fface[data-d=R]{left:calc(var(--s) - 3px);transform-origin:0 50%}
+.fface[data-d=L]{left:calc(-1 * var(--s) + 3px);transform-origin:100% 50%}
+.fface[data-d=D]{top:calc(var(--s) - 3px);transform-origin:50% 0}
+.fface[data-d=U]{top:calc(-1 * var(--s) + 3px);transform-origin:50% 100%}
+.folded .fface[data-d=R]{transform:rotateY(var(--aR))}
+.folded .fface[data-d=L]{transform:rotateY(var(--aL))}
+.folded .fface[data-d=D]{transform:rotateX(var(--aD))}
+.folded .fface[data-d=U]{transform:rotateX(var(--aU))}
+
+/* lock */
+.devbox{display:flex;align-items:center;gap:10px;background:var(--sheet);color:#22305A;border:3px dashed var(--line);border-radius:14px;padding:10px 12px;margin:6px 0 14px}
+.devbox b{font-family:var(--fh);font-size:1.5rem;letter-spacing:.06em;flex:1}
+.codein{text-transform:uppercase;letter-spacing:.12em;text-align:center;font-family:var(--fh);font-size:1.4rem}
+.hint{min-height:1.5em;font-size:.95rem;margin-top:6px}
+.hint.err{color:var(--no)}.hint.ok{color:var(--ok)}
+.steps{margin:12px 0 0;padding-left:1.2em;color:var(--muted);font-size:.95rem}
+
+/* players */
+.plist{display:grid;gap:12px;margin:12px 0}
+.pcard{display:flex;align-items:center;gap:12px;padding:12px 14px;text-align:left;width:100%;background:var(--card);border:3px solid var(--line);border-radius:18px;box-shadow:0 5px 0 var(--line)}
+.pcard:active{transform:translateY(3px);box-shadow:0 2px 0 var(--line)}
+.ava{font-size:2.2rem;width:56px;height:56px;display:grid;place-items:center;border-radius:14px;background:var(--sheet);border:3px solid var(--line);flex:none}
+.pcard .nm{font-family:var(--fh);font-size:1.3rem}
+.pdel{background:none;border:none;font-size:1.2rem;padding:8px;color:var(--muted)}
+.avpick{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:10px 0 14px}
+.avpick button{font-size:1.7rem;aspect-ratio:1;border:3px solid transparent;border-radius:12px;background:var(--sheet)}
+.avpick button[aria-pressed=true]{border-color:var(--line);background:var(--sun)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.chip{display:flex;align-items:center;gap:8px;background:var(--card);border:3px solid var(--line);border-radius:999px;padding:4px 12px 4px 4px;font-family:var(--fh)}
+.chip .ava{width:36px;height:36px;font-size:1.3rem;border-width:2px;border-radius:999px}
+.ib{width:44px;height:44px;border:3px solid var(--line);border-radius:12px;background:var(--card);font-size:1.25rem;display:grid;place-items:center;box-shadow:0 3px 0 var(--line);flex:none}
+.ib:active{transform:translateY(2px);box-shadow:0 1px 0 var(--line)}
+
+/* map */
+.grade{display:grid;grid-template-columns:76px 1fr;gap:12px;align-items:center;margin:0 0 14px;padding:12px;background:var(--card);border:3px solid var(--line);border-radius:20px;box-shadow:0 5px 0 var(--line)}
+.gbadge{display:flex;flex-direction:column;align-items:center;justify-content:center;border:3px solid var(--line);border-radius:16px;padding:6px 0;color:#fff}
+.gbadge .e{font-size:1.8rem;line-height:1.1}.gbadge .n{font-family:var(--fh);font-size:1.05rem;-webkit-text-stroke:.4px #22305A}
+.stages{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.stg{border:3px solid var(--line);border-radius:14px;padding:8px 4px;background:var(--sheet);color:#22305A;box-shadow:0 4px 0 var(--line);text-align:center;line-height:1.25}
+.stg .t{font-family:var(--fh);font-size:.95rem}.stg .s{font-size:1rem;letter-spacing:1px}
+.stg.lock{background:repeating-linear-gradient(45deg,#E4EAF5 0 8px,#D7DFEE 8px 16px);color:#6B7799;box-shadow:0 2px 0 var(--line)}
+.stg:not(.lock):active{transform:translateY(3px);box-shadow:0 1px 0 var(--line)}
+.totals{display:flex;gap:10px;margin:0 0 14px}
+.totals>div{flex:1;background:var(--card);border:3px solid var(--line);border-radius:16px;padding:8px 10px;text-align:center}
+.totals b{display:block;font-family:var(--fh);font-size:1.5rem;line-height:1.2}
+
+/* play */
+.prog{display:flex;gap:5px;flex:1}
+.prog i{flex:1;height:12px;border-radius:6px;border:2px solid var(--line);background:var(--card)}
+.prog i.ok{background:var(--leaf)}.prog i.no{background:var(--tomato)}.prog i.cur{background:var(--sun)}
+.streak{font-family:var(--fh);min-width:52px;text-align:right}
+.qcard{background:var(--card);border:3px solid var(--line);border-radius:22px;box-shadow:0 6px 0 var(--line);padding:14px}
+.qhead{display:flex;gap:10px;align-items:flex-start}
+.qtext{font-family:var(--fh);font-size:1.3rem;flex:1}
+.qtext b{color:var(--sea)}
+:root[data-theme="dark"] .qtext b{color:#8FC0FF}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .qtext b{color:#8FC0FF}}
+.visual{margin:12px 0 4px;background:var(--sheet);border:3px dashed #9FB3D9;border-radius:16px;display:flex;justify-content:center;align-items:center;padding:10px;min-height:120px}
+.visual svg{max-width:100%;max-height:200px;width:auto;height:180px}
+.emoji-big{font-size:5.5rem;line-height:1.1}
+.opts{display:grid;gap:12px;margin-top:14px}
+.opts.pics{grid-template-columns:1fr 1fr}
+.opts.text{grid-template-columns:1fr 1fr}
+.opt{border:3px solid var(--line);border-radius:18px;background:var(--sheet);color:#22305A;box-shadow:0 5px 0 var(--line);padding:10px;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;min-height:64px;font-family:var(--fh);font-size:1.25rem;transition:transform .08s}
+.opt svg{width:100%;height:96px}
+.opts.pics .opt{min-height:140px}
+.opt span{font-family:var(--fb);font-size:.95rem;line-height:1.2;text-align:center}
+.opt:not(:disabled):active{transform:translateY(4px);box-shadow:0 1px 0 var(--line)}
+.opt.ok{background:#C8F2D6;border-color:var(--ok);animation:pop .35s}
+.opt.no{background:#FFD6D1;border-color:var(--no);animation:shake .35s}
+.opt.dim{opacity:.45}
+.opt:disabled{cursor:default}
+.dot{display:inline-grid;place-items:center;width:44px;height:44px;border-radius:10px;border:3px solid #22305A;color:#fff;-webkit-text-stroke:.8px #22305A;font-size:1.5rem}
+@keyframes pop{50%{transform:scale(1.06)}}
+@keyframes shake{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+.fb{margin-top:14px;border:3px solid var(--line);border-radius:18px;padding:12px 14px;box-shadow:0 5px 0 var(--line)}
+.fb.ok{background:#C8F2D6;color:#14532D}.fb.no{background:#FFE7C2;color:#5A3A00}
+.fb .big{font-family:var(--fh);font-size:1.4rem}
+.fb .tip{font-size:.95rem;margin-top:4px}
+.fb .acts{display:flex;gap:10px;margin-top:10px;flex-wrap:wrap}
+
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(20,28,56,.55);display:flex;align-items:flex-end;justify-content:center;z-index:40;padding:0 10px}
+.sheet{width:100%;max-width:560px;background:var(--card);border:3px solid var(--line);border-bottom:none;border-radius:24px 24px 0 0;padding:16px 16px calc(18px + env(safe-area-inset-bottom,0px))}
+.sheet .stage{height:280px;background:var(--sheet);border:3px dashed #9FB3D9;border-radius:16px;margin:10px 0}
+
+/* result */
+.stars{display:flex;justify-content:center;gap:10px;margin:10px 0}
+.stars i{font-style:normal;font-size:3.4rem;filter:grayscale(1);opacity:.35;transform:scale(.6);transition:all .4s cubic-bezier(.3,1.6,.5,1)}
+.stars i.on{filter:none;opacity:1;transform:scale(1)}
+.score{font-family:var(--fh);font-size:2.6rem;text-align:center;line-height:1}
+.msg{font-family:var(--fh);font-size:1.35rem;text-align:center;margin:10px 0 16px}
+
+/* stats */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.sgrid>div{background:var(--card);border:3px solid var(--line);border-radius:16px;padding:10px 12px}
+.sgrid b{display:block;font-family:var(--fh);font-size:1.7rem;line-height:1.15}
+.bar{margin:10px 0}
+.bar .lab{display:flex;justify-content:space-between;font-size:.95rem}
+.bar .tr{height:16px;border:2px solid var(--line);border-radius:9px;background:var(--sheet);overflow:hidden}
+.bar .tr i{display:block;height:100%;background:var(--leaf)}
+.hist{list-style:none;padding:0;margin:8px 0}
+.hist li{display:flex;justify-content:space-between;gap:8px;padding:8px 0;border-bottom:2px dashed rgba(91,106,146,.35);font-size:.95rem}
+h2.sec{font-size:1.25rem;margin:18px 0 6px}
+
+/* toast + confetti */
+.toast{position:fixed;left:50%;top:calc(14px + env(safe-area-inset-top,0px));transform:translateX(-50%);background:var(--sun);color:#22305A;border:3px solid var(--line);border-radius:999px;padding:6px 16px;font-family:var(--fh);z-index:60;box-shadow:0 4px 0 var(--line);animation:drop .3s}
+@keyframes drop{from{transform:translate(-50%,-30px);opacity:0}}
+.confetti{position:fixed;inset:0;pointer-events:none;overflow:hidden;z-index:50}
+.confetti i{position:absolute;top:-24px;width:12px;height:12px;border:2px solid #22305A;animation:fall linear forwards}
+@keyframes fall{to{transform:translateY(110vh) rotate(540deg)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.confetti{display:none}}
+@media (max-width:380px){.logo span{font-size:1.7rem}.opts.pics .opt{min-height:120px}.opt svg{height:80px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ===== LOCK ===== -->
+<section id="lock" hidden>
+  <div class="logo" aria-label="ภาพคลี่หรรษา"><span>ภาพ</span><span>คลี่</span><span>หรรษา</span></div>
+  <p class="tag">พับกระดาษในหัว เรียนรู้รูปทรง ตั้งแต่อนุบาลถึง ป.6</p>
+  <div class="stage" id="heroStage" aria-hidden="true"></div>
+  <div class="card">
+    <div style="font-weight:600">รหัสเครื่องนี้</div>
+    <div class="devbox"><b id="devId">----</b><button class="btn sm ghost" id="copyDev">คัดลอก</button></div>
+    <label for="code" style="display:block;font-weight:600;margin-bottom:6px">รหัสเปิดใช้งาน</label>
+    <input id="code" class="input codein" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="XXXXX-XXXXX" maxlength="14">
+    <div class="hint" id="codeHint" role="status"></div>
+    <button class="btn grape block" id="unlock" style="margin-top:6px">เปิดใช้งาน</button>
+    <ol class="steps">
+      <li>ส่ง <b>รหัสเครื่องนี้</b> ให้ผู้ขาย</li>
+      <li>รับรหัสเปิดใช้งานกลับมา แล้วพิมพ์ด้านบน</li>
+      <li>เปิดครั้งเดียว เครื่องนี้จะจำไว้ตลอด</li>
+    </ol>
+  </div>
+  <p class="center muted" id="contact" style="margin-top:14px"></p>
+  <p class="center muted" id="storeWarn" hidden style="font-size:.9rem">⚠️ เบราว์เซอร์นี้บันทึกข้อมูลไม่ได้ (อาจเปิดโหมดไม่ระบุตัวตนอยู่) กรุณาเปิดในโหมดปกติ</p>
+</section>
+
+<!-- ===== PLAYERS ===== -->
+<section id="players" hidden>
+  <div class="logo" aria-label="ภาพคลี่หรรษา"><span>ภาพ</span><span>คลี่</span><span>หรรษา</span></div>
+  <p class="tag">วันนี้ใครจะเล่น?</p>
+  <div class="plist" id="plist"></div>
+  <div class="card" id="newPlayer">
+    <h3 style="font-size:1.25rem">เพิ่มผู้เล่นใหม่</h3>
+    <input id="pname" class="input" style="margin-top:10px" maxlength="20" placeholder="พิมพ์ชื่อเล่น เช่น น้องมะลิ" autocomplete="off">
+    <div class="avpick" id="avpick" role="group" aria-label="เลือกตัวการ์ตูน"></div>
+    <button class="btn leaf block" id="addP">เริ่มเล่นเลย!</button>
+  </div>
+</section>
+
+<!-- ===== MAP ===== -->
+<section id="map" hidden>
+  <div class="top">
+    <button class="chip" id="whoBtn" aria-label="เปลี่ยนผู้เล่น"><span class="ava" id="mAva"></span><span id="mName"></span></button>
+    <span class="grow"></span>
+    <button class="ib" id="soundBtn" aria-label="เปิดปิดเสียง">🔊</button>
+    <button class="ib" id="statsBtn" aria-label="ดูสถิติ">📊</button>
+  </div>
+  <div class="totals">
+    <div><b id="tStars">0</b><span class="muted">ดาวที่เก็บได้</span></div>
+    <div><b id="tAcc">–</b><span class="muted">ตอบถูก</span></div>
+  </div>
+  <div id="grades"></div>
+</section>
+
+<!-- ===== PLAY ===== -->
+<section id="play" hidden>
+  <div class="top">
+    <button class="ib" id="quit" aria-label="ออกจากด่าน">✕</button>
+    <div class="prog" id="prog" aria-hidden="true"></div>
+    <div class="streak" id="streak" aria-live="polite"></div>
+  </div>
+  <div class="muted" id="stageLabel" style="font-family:var(--fh);margin:-4px 0 8px"></div>
+  <div class="qcard">
+    <div class="qhead"><div class="qtext" id="qtext"></div><button class="ib" id="speak" aria-label="อ่านโจทย์ให้ฟัง" hidden>🔈</button></div>
+    <div class="visual" id="visual"></div>
+    <div class="opts" id="opts"></div>
+  </div>
+  <div class="fb" id="fb" hidden role="status"></div>
+</section>
+
+<!-- ===== RESULT ===== -->
+<section id="result" hidden>
+  <div class="card center" style="margin-top:20px">
+    <h2 id="rTitle" style="font-size:1.6rem"></h2>
+    <div class="stars" id="rStars"><i>⭐</i><i>⭐</i><i>⭐</i></div>
+    <div class="score" id="rScore"></div>
+    <div class="muted">ข้อที่ตอบถูก</div>
+    <p class="msg" id="rMsg"></p>
+    <div style="display:grid;gap:12px">
+      <button class="btn leaf block" id="rNext">ด่านต่อไป</button>
+      <button class="btn sea block" id="rAgain">เล่นด่านนี้อีกครั้ง</button>
+      <button class="btn ghost block" id="rMap">กลับหน้าด่าน</button>
+    </div>
+  </div>
+</section>
+
+<!-- ===== STATS ===== -->
+<section id="stats" hidden>
+  <div class="top">
+    <button class="ib" id="sBack" aria-label="กลับ">←</button>
+    <h2 class="grow" style="font-size:1.4rem">สถิติของ <span id="sName"></span></h2>
+  </div>
+  <div class="sgrid" id="sgrid"></div>
+  <h2 class="sec">เก่งเรื่องไหนบ้าง</h2>
+  <div id="sTopics"></div>
+  <h2 class="sec">ดาวแต่ละระดับชั้น</h2>
+  <div id="sGrades"></div>
+  <h2 class="sec">เล่นล่าสุด</h2>
+  <ul class="hist" id="sHist"></ul>
+</section>
+
+</div>
+
+<!-- fold viewer -->
+<div class="modal" id="foldModal" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="foldTitle">
+    <div class="row"><h3 id="foldTitle" class="grow" style="font-size:1.3rem">ลองพับดูกัน!</h3><button class="ib" id="foldClose" aria-label="ปิด">✕</button></div>
+    <div class="stage" id="foldStage"></div>
+    <p class="center" id="foldNote" style="margin:0 0 10px"></p>
+    <div class="row"><button class="btn sea grow" id="foldBtn">พับ 📦</button><button class="btn ghost grow" id="unfoldBtn">คลี่ออก</button></div>
+  </div>
+</div>
+<script>
+/* ================= LICENSE / CODE ================= */
+const SECRET = "KNFiHxYQQ2PQOslLZpJOepGbzPk5rSFf"; // ต้องตรงกับเครื่องมือออกรหัส
+const B32 = "0123456789ABCDEFGHJKMNPQRSTVWXYZ";
+
+function ror(x, n) { return (x >>> n) | (x << (32 - n)); }
+const SHA_K = (() => {
+  const k = [], primes = [];
+  for (let n = 2; primes.length < 64; n++) { if (primes.every(p => n % p)) primes.push(n); }
+  for (const p of primes) { const c = Math.cbrt(p); k.push(Math.floor((c - Math.floor(c)) * 4294967296) >>> 0); }
+  return k;
+})();
+const SHA_H0 = [0x6a09e667, 0xbb67ae85, 0x3c6ef372, 0xa54ff53a, 0x510e527f, 0x9b05688c, 0x1f83d9ab, 0x5be0cd19];
+function sha256(bytes) {
+  const l = bytes.length, total = ((l + 9 + 63) >> 6) << 6;
+  const m = new Uint8Array(total); m.set(bytes); m[l] = 0x80;
+  const dv = new DataView(m.buffer);
+  dv.setUint32(total - 4, (l * 8) >>> 0); dv.setUint32(total - 8, Math.floor(l * 8 / 4294967296));
+  let H = SHA_H0.slice(); const w = new Uint32Array(64);
+  for (let i = 0; i < total; i += 64) {
+    for (let t = 0; t < 16; t++) w[t] = dv.getUint32(i + t * 4);
+    for (let t = 16; t < 64; t++) {
+      const x = w[t - 15], y = w[t - 2];
+      w[t] = (w[t - 16] + (ror(x, 7) ^ ror(x, 18) ^ (x >>> 3)) + w[t - 7] + (ror(y, 17) ^ ror(y, 19) ^ (y >>> 10))) >>> 0;
+    }
+    let [a, b, c, d, e, f, g, h] = H;
+    for (let t = 0; t < 64; t++) {
+      const t1 = (h + (ror(e, 6) ^ ror(e, 11) ^ ror(e, 25)) + ((e & f) ^ (~e & g)) + SHA_K[t] + w[t]) >>> 0;
+      const t2 = ((ror(a, 2) ^ ror(a, 13) ^ ror(a, 22)) + ((a & b) ^ (a & c) ^ (b & c))) >>> 0;
+      h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+    }
+    H = [a, b, c, d, e, f, g, h].map((v, j) => (H[j] + v) >>> 0);
+  }
+  const out = new Uint8Array(32);
+  H.forEach((v, j) => { out[j * 4] = v >>> 24; out[j * 4 + 1] = (v >>> 16) & 255; out[j * 4 + 2] = (v >>> 8) & 255; out[j * 4 + 3] = v & 255; });
+  return out;
+}
+function utf8(s) { return new TextEncoder().encode(s); }
+function hmac(keyStr, msgStr) {
+  let key = utf8(keyStr); if (key.length > 64) key = sha256(key);
+  const k = new Uint8Array(64); k.set(key);
+  const ip = k.map(b => b ^ 0x36), op = k.map(b => b ^ 0x5c), msg = utf8(msgStr);
+  const inner = new Uint8Array(64 + msg.length); inner.set(ip); inner.set(msg, 64);
+  const ih = sha256(inner); const outer = new Uint8Array(96); outer.set(op); outer.set(ih, 64);
+  return sha256(outer);
+}
+function normCode(s) {
+  return String(s || "").toUpperCase().replace(/[O]/g, "0").replace(/[IL]/g, "1").replace(/[^0-9A-Z]/g, "");
+}
+function makeCode(deviceId) {
+  const d = normCode(deviceId), h = hmac(SECRET, "GEONET|v1|" + d);
+  let bits = ""; for (let i = 0; i < 7; i++) bits += h[i].toString(2).padStart(8, "0");
+  let s = ""; for (let i = 0; i < 10; i++) s += B32[parseInt(bits.slice(i * 5, i * 5 + 5), 2)];
+  return s.slice(0, 5) + "-" + s.slice(5);
+}
+function checkCode(deviceId, code) { return normCode(makeCode(deviceId)) === normCode(code); }
+function fmtDevice(id) { const d = normCode(id); return d.slice(0, 4) + "-" + d.slice(4, 8); }
+
+/* ================= RANDOM ================= */
+const rnd = n => Math.floor(Math.random() * n);
+const pick = a => a[rnd(a.length)];
+function shuffle(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = rnd(i + 1); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+/* ================= CUBE NETS ================= */
+const ROLL = {
+  R: s => ({ b: s.e, t: s.w, e: s.t, w: s.b, n: s.n, so: s.so }),
+  L: s => ({ b: s.w, t: s.e, w: s.t, e: s.b, n: s.n, so: s.so }),
+  D: s => ({ b: s.so, t: s.n, so: s.t, n: s.b, e: s.e, w: s.w }),
+  U: s => ({ b: s.n, t: s.so, n: s.t, so: s.b, e: s.e, w: s.w }),
+};
+const STEP = { R: [1, 0], L: [-1, 0], D: [0, 1], U: [0, -1] };
+const OPP = { B: "T", T: "B", N: "S", S: "N", E: "W", W: "E" };
+function foldInfo(cells) {
+  const key = c => c[0] + "," + c[1], set = new Map(cells.map((c, i) => [key(c), i]));
+  const info = cells.map(() => null);
+  info[0] = { face: "B", parent: -1, dir: null, depth: 0, state: { b: "B", t: "T", n: "N", so: "S", e: "E", w: "W" } };
+  const q = [0];
+  while (q.length) {
+    const i = q.shift(), [x, y] = cells[i];
+    for (const d of ["R", "L", "D", "U"]) {
+      const j = set.get(key([x + STEP[d][0], y + STEP[d][1]]));
+      if (j === undefined || info[j]) continue;
+      const st = ROLL[d](info[i].state);
+      info[j] = { face: st.b, parent: i, dir: d, depth: info[i].depth + 1, state: st };
+      q.push(j);
+    }
+  }
+  const faces = info.map(f => f && f.face);
+  const valid = info.every(Boolean) && new Set(faces).size === 6 && cells.length === 6;
+  return { info, valid };
+}
+function normCells(cells) {
+  const mx = Math.min(...cells.map(c => c[0])), my = Math.min(...cells.map(c => c[1]));
+  return cells.map(c => [c[0] - mx, c[1] - my]).sort((a, b) => a[1] - b[1] || a[0] - b[0]);
+}
+function transformCells(cells, rot, flip) {
+  let cs = cells.map(c => [flip ? -c[0] : c[0], c[1]]);
+  for (let r = 0; r < rot; r++) cs = cs.map(([x, y]) => [-y, x]);
+  return normCells(cs);
+}
+const canonKey = cells => {
+  let best = null;
+  for (let f = 0; f < 2; f++) for (let r = 0; r < 4; r++) {
+    const k = JSON.stringify(transformCells(cells, r, f)); if (best === null || k < best) best = k;
+  }
+  return best;
+};
+const VALID_NETS = (() => {
+  const L = [];
+  const pairs = [[0, 0], [0, 1], [0, 2], [0, 3], [1, 1], [1, 2]];
+  for (const [a, b] of pairs) L.push([[a, 0], [0, 1], [1, 1], [2, 1], [3, 1], [b, 2]]);
+  for (const k of [1, 2, 3]) L.push([[0, 0], [1, 0], [1, 1], [2, 1], [3, 1], [k, 2]]);
+  L.push([[0, 0], [1, 0], [1, 1], [2, 1], [2, 2], [3, 2]]);
+  L.push([[0, 0], [1, 0], [2, 0], [2, 1], [3, 1], [4, 1]]);
+  return L.map(normCells);
+})();
+function randomValidNet() { return transformCells(pick(VALID_NETS), rnd(4), rnd(2)); }
+function randomInvalidNet(hard) {
+  for (let tries = 0; tries < 500; tries++) {
+    let cells = [[0, 0]]; const has = new Set(["0,0"]);
+    while (cells.length < 6) {
+      const [x, y] = pick(cells), d = pick(["R", "L", "D", "U"]), nx = x + STEP[d][0], ny = y + STEP[d][1];
+      if (!has.has(nx + "," + ny)) { has.add(nx + "," + ny); cells.push([nx, ny]); }
+    }
+    cells = normCells(cells);
+    const w = Math.max(...cells.map(c => c[0])) + 1, h = Math.max(...cells.map(c => c[1])) + 1;
+    if (Math.max(w, h) > 5 || Math.min(w, h) > 3) continue;
+    if (hard && (w * h === 6)) continue; // ตัดรูปสี่เหลี่ยม 2x3 ที่ง่ายเกินไป
+    if (!foldInfo(cells).valid) return cells;
+  }
+  return normCells([[0, 0], [1, 0], [2, 0], [0, 1], [1, 1], [2, 1]]);
+}
+
+/* ================= DRAWING ================= */
+const PAL = [
+  ["#FF6B5E", "#FF9E8F", "#D9483C"], ["#FFC93C", "#FFE08A", "#E0A400"], ["#3DBE6B", "#7FDB9E", "#279650"],
+  ["#2F7BEA", "#79AEF5", "#1D5BB8"], ["#8A5CF6", "#B79CFA", "#6A3BD6"], ["#FF7EB6", "#FFB3D4", "#E0528F"],
+];
+const INK = "#22305A";
+const svgWrap = (vb, body, label) => `<svg viewBox="${vb}" role="img" aria-label="${label || ""}" xmlns="http://www.w3.org/2000/svg">${body}</svg>`;
+function poly(n, r, cx = 50, cy = 52) {
+  const pts = []; for (let i = 0; i < n; i++) { const a = -Math.PI / 2 + i * 2 * Math.PI / n; pts.push((cx + r * Math.cos(a)).toFixed(1) + "," + (cy + r * Math.sin(a)).toFixed(1)); }
+  return pts.join(" ");
+}
+const SHAPES2D = {
+  circle: { name: "วงกลม", sides: 0, draw: c => `<circle cx="50" cy="50" r="40"/>` },
+  square: { name: "สี่เหลี่ยมจัตุรัส", sides: 4, draw: c => `<rect x="14" y="14" width="72" height="72" rx="3"/>` },
+  rectangle: { name: "สี่เหลี่ยมผืนผ้า", sides: 4, draw: c => `<rect x="6" y="28" width="88" height="46" rx="3"/>` },
+  triangle: { name: "สามเหลี่ยม", sides: 3, draw: c => `<polygon points="50,10 92,86 8,86" stroke-linejoin="round"/>` },
+  oval: { name: "วงรี", sides: 0, draw: c => `<ellipse cx="50" cy="50" rx="44" ry="27"/>` },
+  pentagon: { name: "ห้าเหลี่ยม", sides: 5, draw: c => `<polygon points="${poly(5, 42)}" stroke-linejoin="round"/>` },
+  hexagon: { name: "หกเหลี่ยม", sides: 6, draw: c => `<polygon points="${poly(6, 42, 50, 50)}" stroke-linejoin="round"/>` },
+};
+function draw2D(kind, colorIdx) {
+  const p = PAL[colorIdx % PAL.length];
+  return svgWrap("0 0 100 100", `<g fill="${p[0]}" stroke="${INK}" stroke-width="3">${SHAPES2D[kind].draw()}</g>`, SHAPES2D[kind].name);
+}
+
+const SOLIDS = {
+  sphere: { name: "ทรงกลม", f: null },
+  cube: { name: "ลูกบาศก์", f: [6, 12, 8], faces: ["square"] },
+  cuboid: { name: "ทรงสี่เหลี่ยมมุมฉาก", f: [6, 12, 8], faces: ["rectangle"] },
+  cylinder: { name: "ทรงกระบอก", f: null, faces: ["circle"] },
+  cone: { name: "กรวย", f: null, faces: ["circle"] },
+  sqpyramid: { name: "พีระมิดฐานสี่เหลี่ยม", f: [5, 8, 5], faces: ["square", "triangle"] },
+  triprism: { name: "ปริซึมสามเหลี่ยม", f: [5, 9, 6], faces: ["triangle", "rectangle"] },
+  tripyramid: { name: "พีระมิดฐานสามเหลี่ยม", f: [4, 6, 4], faces: ["triangle"] },
+};
+function draw3D(kind, ci) {
+  const [m, l, d] = PAL[ci % PAL.length], S = `stroke="${INK}" stroke-width="2.5" stroke-linejoin="round"`;
+  let b = "";
+  switch (kind) {
+    case "sphere":
+      b = `<defs><radialGradient id="sg${ci}" cx="35%" cy="32%" r="70%"><stop offset="0" stop-color="${l}"/><stop offset=".55" stop-color="${m}"/><stop offset="1" stop-color="${d}"/></radialGradient></defs>
+      <circle cx="60" cy="60" r="44" fill="url(#sg${ci})" ${S}/><path d="M16 60 A44 13 0 0 0 104 60" fill="none" stroke="${INK}" stroke-width="2"/><path d="M16 60 A44 13 0 0 1 104 60" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".5"/>`; break;
+    case "cube":
+      b = `<polygon points="22,46 46,24 98,24 74,46" fill="${l}" ${S}/><polygon points="74,46 98,24 98,76 74,98" fill="${d}" ${S}/><rect x="22" y="46" width="52" height="52" fill="${m}" ${S}/>`; break;
+    case "cuboid":
+      b = `<polygon points="10,56 32,36 110,36 88,56" fill="${l}" ${S}/><polygon points="88,56 110,36 110,76 88,96" fill="${d}" ${S}/><rect x="10" y="56" width="78" height="40" fill="${m}" ${S}/>`; break;
+    case "cylinder":
+      b = `<path d="M28 30 L28 92 A32 10 0 0 0 92 92 L92 30 Z" fill="${m}" ${S}/><ellipse cx="60" cy="30" rx="32" ry="10" fill="${l}" ${S}/>`; break;
+    case "cone":
+      b = `<path d="M60 14 L24 92 A36 11 0 0 0 96 92 Z" fill="${m}" ${S}/><path d="M24 92 A36 11 0 0 1 96 92" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".5"/>`; break;
+    case "sqpyramid":
+      b = `<polygon points="60,14 18,92 78,100" fill="${m}" ${S}/><polygon points="60,14 78,100 104,80" fill="${d}" ${S}/><path d="M18 92 L44 74 L104 80 M44 74 L60 14" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".5"/>`; break;
+    case "triprism":
+      b = `<polygon points="38,46 84,24 110,74 64,96" fill="${d}" ${S}/><polygon points="12,96 38,46 64,96" fill="${l}" ${S}/>`; break;
+    case "tripyramid":
+      b = `<polygon points="60,14 14,94 74,102" fill="${m}" ${S}/><polygon points="60,14 74,102 106,78" fill="${d}" ${S}/><path d="M14 94 L106 78" fill="none" stroke="${INK}" stroke-width="1.6" stroke-dasharray="4 4" opacity=".5"/>`; break;
+  }
+  return svgWrap("0 0 120 120", b, SOLIDS[kind].name);
+}
+
+const FACECOL = ["#FF6B5E", "#FFC93C", "#3DBE6B", "#2F7BEA", "#8A5CF6", "#FF7EB6"];
+function drawCubeNet(cells, opt = {}) {
+  const s = 30, pad = 4;
+  const w = Math.max(...cells.map(c => c[0])) + 1, h = Math.max(...cells.map(c => c[1])) + 1;
+  let b = "";
+  cells.forEach((c, i) => {
+    const x = pad + c[0] * s, y = pad + c[1] * s;
+    const fill = opt.labels ? FACECOL[opt.labels[i] - 1] : (opt.color || "#79AEF5");
+    const hl = opt.highlight === i;
+    b += `<rect x="${x}" y="${y}" width="${s}" height="${s}" fill="${fill}" stroke="${INK}" stroke-width="${hl ? 4 : 2}"/>`;
+    if (opt.labels) b += `<text x="${x + s / 2}" y="${y + s / 2 + 6}" text-anchor="middle" font-size="17" font-weight="700" fill="#fff" stroke="${INK}" stroke-width=".6">${opt.labels[i]}</text>`;
+    if (hl) b += `<rect x="${x + 3}" y="${y + 3}" width="${s - 6}" height="${s - 6}" fill="none" stroke="#fff" stroke-width="2" stroke-dasharray="3 3"/>`;
+  });
+  return svgWrap(`0 0 ${w * s + pad * 2} ${h * s + pad * 2}`, b, "ภาพคลี่");
+}
+function drawNet(kind, ci) {
+  const [m, l, d] = PAL[ci % PAL.length], S = `stroke="${INK}" stroke-width="2" stroke-linejoin="round"`;
+  let b = "", vb = "0 0 140 110";
+  switch (kind) {
+    case "cube": return drawCubeNet(randomValidNet(), { color: l });
+    case "cuboid": {
+      const W = 18, Lg = 34, H = 26, x0 = 6, y0 = 6 + W;
+      const xs = [x0, x0 + W, x0 + W + Lg, x0 + 2 * W + Lg];
+      const ws = [W, Lg, W, Lg];
+      xs.forEach((x, i) => { b += `<rect x="${x}" y="${y0}" width="${ws[i]}" height="${H}" fill="${i % 2 ? m : l}" ${S}/>`; });
+      b += `<rect x="${xs[1]}" y="${y0 - W}" width="${Lg}" height="${W}" fill="${d}" ${S}/><rect x="${xs[1]}" y="${y0 + H}" width="${Lg}" height="${W}" fill="${d}" ${S}/>`;
+      vb = `0 0 ${2 * W + 2 * Lg + 12} ${2 * W + H + 12}`; break;
+    }
+    case "cylinder": {
+      const r = 14, x = 20, w = 2 * Math.PI * r;
+      b = `<rect x="${x}" y="${8 + 2 * r}" width="${w.toFixed(1)}" height="40" fill="${m}" ${S}/><circle cx="${x + r + 4}" cy="${8 + r}" r="${r}" fill="${l}" ${S}/><circle cx="${x + r + 4}" cy="${8 + 2 * r + 40 + r}" r="${r}" fill="${l}" ${S}/>`;
+      vb = `0 0 ${(w + 40).toFixed(0)} ${16 + 4 * r + 40}`; break;
+    }
+    case "cone": {
+      const cx = 62, cy = 8, R = 72, a1 = 60 * Math.PI / 180, a2 = 120 * Math.PI / 180;
+      const p1 = [cx + R * Math.cos(a1), cy + R * Math.sin(a1)], p2 = [cx + R * Math.cos(a2), cy + R * Math.sin(a2)];
+      const rr = R * (a2 - a1) / (2 * Math.PI);
+      b = `<path d="M${cx} ${cy} L${p1[0].toFixed(1)} ${p1[1].toFixed(1)} A${R} ${R} 0 0 1 ${p2[0].toFixed(1)} ${p2[1].toFixed(1)} Z" fill="${m}" ${S}/><circle cx="${cx}" cy="${(cy + R + rr).toFixed(1)}" r="${rr.toFixed(1)}" fill="${l}" ${S}/>`;
+      vb = `0 0 124 ${(cy + R + 2 * rr + 6).toFixed(0)}`; break;
+    }
+    case "sqpyramid": {
+      const c = 60, a = 34, t = 30, x = c - a / 2, y = c - a / 2;
+      b = `<rect x="${x}" y="${y}" width="${a}" height="${a}" fill="${d}" ${S}/>
+      <polygon points="${x},${y} ${x + a},${y} ${c},${y - t}" fill="${m}" ${S}/><polygon points="${x},${y + a} ${x + a},${y + a} ${c},${y + a + t}" fill="${m}" ${S}/>
+      <polygon points="${x},${y} ${x},${y + a} ${x - t},${c}" fill="${l}" ${S}/><polygon points="${x + a},${y} ${x + a},${y + a} ${x + a + t},${c}" fill="${l}" ${S}/>`;
+      vb = "0 0 120 120"; break;
+    }
+    case "triprism": {
+      const s = 30, h = 26, y = 32, x0 = 10;
+      for (let i = 0; i < 3; i++) b += `<rect x="${x0 + i * s}" y="${y}" width="${s}" height="46" fill="${i === 1 ? m : l}" ${S}/>`;
+      b += `<polygon points="${x0 + s},${y} ${x0 + 2 * s},${y} ${x0 + 1.5 * s},${y - h}" fill="${d}" ${S}/><polygon points="${x0 + s},${y + 46} ${x0 + 2 * s},${y + 46} ${x0 + 1.5 * s},${y + 46 + h}" fill="${d}" ${S}/>`;
+      vb = `0 0 ${x0 * 2 + 3 * s} ${y + 46 + h + 6}`; break;
+    }
+    case "tripyramid": {
+      const A = [60, 6], B = [8, 96], C = [112, 96], mid = (p, q) => [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+      const ab = mid(A, B), ac = mid(A, C), bc = mid(B, C), P = (...ps) => ps.map(p => p.join(",")).join(" ");
+      b = `<polygon points="${P(A, ab, ac)}" fill="${l}" ${S}/><polygon points="${P(ab, B, bc)}" fill="${l}" ${S}/><polygon points="${P(ac, bc, C)}" fill="${l}" ${S}/><polygon points="${P(ab, bc, ac)}" fill="${m}" ${S}/>`;
+      vb = "0 0 120 102"; break;
+    }
+  }
+  return svgWrap(vb, b, "ภาพคลี่ของ" + SOLIDS[kind].name);
+}
+function drawCuboidNetLabeled(L, W, H) {
+  const k = Math.min(150 / (2 * L + 2 * W), 120 / (2 * W + H), 9);
+  const l = L * k, w = W * k, h = H * k, x0 = 10, y0 = 8 + w, S = `stroke="${INK}" stroke-width="2"`;
+  const xs = [x0, x0 + w, x0 + w + l, x0 + 2 * w + l], ws = [w, l, w, l], fills = ["#FFE08A", "#79AEF5", "#FFE08A", "#79AEF5"];
+  let b = "";
+  xs.forEach((x, i) => b += `<rect x="${x}" y="${y0}" width="${ws[i]}" height="${h}" fill="${fills[i]}" ${S}/>`);
+  b += `<rect x="${xs[1]}" y="${y0 - w}" width="${l}" height="${w}" fill="#7FDB9E" ${S}/><rect x="${xs[1]}" y="${y0 + h}" width="${l}" height="${w}" fill="#7FDB9E" ${S}/>`;
+  const T = (x, y, t, a = "middle") => `<text x="${x}" y="${y}" text-anchor="${a}" font-size="9" font-weight="700" fill="${INK}">${t}</text>`;
+  b += T(xs[1] + l / 2, y0 + h / 2 + 3, `ยาว ${L}`) + T(xs[1] - 2, y0 + h / 2 + 3, `สูง ${H}`, "end") + T(xs[1] + l + 2, y0 - w / 2 + 3, `กว้าง ${W}`, "start");
+  return svgWrap(`0 0 ${2 * l + 2 * w + 20 + 30} ${2 * w + h + 16}`, b, "ภาพคลี่ทรงสี่เหลี่ยมมุมฉาก");
+}
+
+/* ================= QUESTIONS ================= */
+const TOPICS = { s2d: "รูปสองมิติ", s3d: "รูปสามมิติ", face: "หน้าของรูปทรง", net: "ภาพคลี่", cube: "ภาพคลี่ลูกบาศก์", fev: "หน้า สัน จุดยอด", area: "พื้นที่ผิว" };
+const OBJECTS = [
+  ["⚽", "ลูกฟุตบอล", "sphere"], ["🍊", "ส้ม", "sphere"], ["🌍", "ลูกโลก", "sphere"], ["🏀", "ลูกบาสเกตบอล", "sphere"],
+  ["🎲", "ลูกเต๋า", "cube"], ["🧊", "ก้อนน้ำแข็ง", "cube"],
+  ["📦", "กล่องพัสดุ", "cuboid"], ["🧃", "กล่องนม", "cuboid"], ["🧱", "ก้อนอิฐ", "cuboid"],
+  ["🥫", "กระป๋อง", "cylinder"], ["🥁", "กลอง", "cylinder"], ["🕯️", "เทียน", "cylinder"],
+  ["🍦", "โคนไอศกรีม", "cone"], ["🥳", "หมวกวันเกิด", "cone"],
+  ["⛺", "เต็นท์", "triprism"], ["🧀", "ชีสชิ้นสามเหลี่ยม", "triprism"],
+];
+function makeOptions(correct, cands, fill) {
+  const seen = new Set([correct]), out = [correct];
+  for (const c of shuffle(cands)) { if (out.length >= 4) break; if (c > 0 && Number.isInteger(c) && !seen.has(c)) { seen.add(c); out.push(c); } }
+  let k = 1;
+  while (out.length < 4) { for (const c of [correct + k * fill, correct - k * fill]) if (out.length < 4 && c > 0 && !seen.has(c)) { seen.add(c); out.push(c); } k++; }
+  return shuffle(out);
+}
+const numOpts = (correct, list, unit = "") => list.map(v => ({ html: `<b>${v}</b>${unit ? " " + unit : ""}`, correct: v === correct, name: String(v) }));
+
+const GEN = {
+  pick2D(basic) {
+    const pool = basic ? ["circle", "square", "triangle", "rectangle"] : Object.keys(SHAPES2D);
+    let opts = shuffle(pool).slice(0, 4), ans = pick(opts);
+    // ไม่ให้สี่เหลี่ยมจัตุรัสกับผืนผ้าเป็นตัวลวงของกันและกัน
+    if ((ans === "square" && opts.includes("rectangle")) || (ans === "rectangle" && opts.includes("square"))) {
+      const rep = shuffle(pool.filter(k => !opts.includes(k) && k !== "square" && k !== "rectangle"))[0];
+      if (rep) opts = opts.map(k => (k === "square" || k === "rectangle") && k !== ans ? rep : k);
+      else return GEN.pick2D(basic);
+    }
+    const col = rnd(6);
+    return {
+      topic: "s2d", prompt: `แตะที่รูป <b>${SHAPES2D[ans].name}</b>`, speak: `แตะที่รูป ${SHAPES2D[ans].name}`, layout: "pics",
+      options: opts.map((k, i) => ({ html: draw2D(k, col + i), correct: k === ans, name: SHAPES2D[k].name })),
+      explain: `รูปนี้คือ ${SHAPES2D[ans].name}`,
+    };
+  },
+  count2D(basic) {
+    const kind = pick(basic ? ["triangle", "square", "rectangle"] : ["triangle", "square", "rectangle", "pentagon", "hexagon"]);
+    const n = SHAPES2D[kind].sides, what = pick(["ด้าน", "มุม"]);
+    return {
+      topic: "s2d", prompt: `${SHAPES2D[kind].name} รูปนี้มีกี่<b>${what}</b>?`, speak: `${SHAPES2D[kind].name} มีกี่${what}`, visual: draw2D(kind, rnd(6)), layout: "text",
+      options: numOpts(n, shuffle([3, 4, 5, 6]), what), explain: `${SHAPES2D[kind].name} มี ${n} ด้าน และ ${n} มุม`,
+    };
+  },
+  object3D(basic) {
+    const pool = OBJECTS.filter(o => basic ? ["sphere", "cube", "cylinder", "cone"].includes(o[2]) : true);
+    const o = pick(pool), kinds = basic ? ["sphere", "cube", "cylinder", "cone"] : ["sphere", "cube", "cuboid", "cylinder", "cone", "triprism"];
+    const opts = shuffle([o[2], ...shuffle(kinds.filter(k => k !== o[2] && !(o[2] === "cube" && k === "cuboid") && !(o[2] === "cuboid" && k === "cube"))).slice(0, 3)]);
+    return {
+      topic: "s3d", prompt: `<b>${o[1]}</b> มีรูปร่างเหมือนรูปทรงไหน?`, speak: `${o[1]} มีรูปร่างเหมือนรูปทรงไหน`, visual: `<div class="emoji-big">${o[0]}</div>`, layout: "pics",
+      options: opts.map((k, i) => ({ html: draw3D(k, i + rnd(6)) + `<span>${SOLIDS[k].name}</span>`, correct: k === o[2], name: SOLIDS[k].name })),
+      explain: `${o[1]} มีรูปร่างคล้าย${SOLIDS[o[2]].name}`,
+    };
+  },
+  name3D(all) {
+    const kinds = all ? Object.keys(SOLIDS) : ["sphere", "cube", "cuboid", "cylinder", "cone"];
+    const ans = pick(kinds), opts = shuffle([ans, ...shuffle(kinds.filter(k => k !== ans)).slice(0, 3)]);
+    return {
+      topic: "s3d", prompt: `รูปทรงนี้ชื่ออะไร?`, speak: "รูปทรงนี้ชื่ออะไร", visual: draw3D(ans, rnd(6)), layout: "text",
+      options: opts.map(k => ({ html: SOLIDS[k].name, correct: k === ans, name: SOLIDS[k].name })), explain: `รูปทรงนี้คือ ${SOLIDS[ans].name}`,
+    };
+  },
+  faceShape() {
+    const kind = pick(["cube", "cuboid", "cylinder", "cone", "sqpyramid", "triprism", "tripyramid"]);
+    const faces = SOLIDS[kind].faces, ans = pick(faces);
+    const quad = faces.includes("square") || faces.includes("rectangle");
+    const bad = ["circle", "square", "rectangle", "triangle", "pentagon", "hexagon"].filter(k => !faces.includes(k) && !(quad && (k === "square" || k === "rectangle")));
+    const opts = shuffle([ans, ...shuffle(bad).slice(0, 3)]), col = rnd(6);
+    return {
+      topic: "face", prompt: `ถ้าเอาหน้าหนึ่งของ<b>${SOLIDS[kind].name}</b>ไปทาบกระดาษแล้ววาดตามรอบ จะได้รูปไหน?`,
+      speak: `ถ้าเอาหน้าหนึ่งของ${SOLIDS[kind].name}ไปทาบกระดาษ จะได้รูปไหน`, visual: draw3D(kind, col), layout: "pics",
+      options: opts.map((k, i) => ({ html: draw2D(k, col + i + 1) + `<span>${SHAPES2D[k].name}</span>`, correct: k === ans, name: SHAPES2D[k].name })),
+      explain: `${SOLIDS[kind].name} มีหน้าเป็นรูป${faces.map(f => SHAPES2D[f].name).join(" และ ")}`,
+    };
+  },
+  net2solid(basic) {
+    const kinds = basic ? ["cube", "cuboid", "cylinder", "cone"] : ["cube", "cuboid", "cylinder", "cone", "sqpyramid", "triprism", "tripyramid"];
+    const ans = pick(kinds), col = rnd(6);
+    const opts = shuffle([ans, ...shuffle(kinds.filter(k => k !== ans && !(ans === "cube" && k === "cuboid") && !(ans === "cuboid" && k === "cube"))).slice(0, 3)]);
+    return {
+      topic: "net", prompt: `ภาพคลี่นี้ พับแล้วได้รูปทรงไหน?`, speak: "ภาพคลี่นี้ พับแล้วได้รูปทรงไหน", visual: drawNet(ans, col), layout: "pics",
+      options: opts.map((k, i) => ({ html: draw3D(k, col + i) + `<span>${SOLIDS[k].name}</span>`, correct: k === ans, name: SOLIDS[k].name })),
+      explain: `ภาพคลี่นี้พับได้เป็น${SOLIDS[ans].name}`, foldCube: ans === "cube",
+    };
+  },
+  solid2net(basic) {
+    const kinds = basic ? ["cube", "cuboid", "cylinder", "cone"] : ["cube", "cuboid", "cylinder", "cone", "sqpyramid", "triprism", "tripyramid"];
+    const ans = pick(kinds), col = rnd(6);
+    const opts = shuffle([ans, ...shuffle(kinds.filter(k => k !== ans && !(ans === "cube" && k === "cuboid") && !(ans === "cuboid" && k === "cube"))).slice(0, 3)]);
+    return {
+      topic: "net", prompt: `ภาพคลี่ไหน พับแล้วได้<b>${SOLIDS[ans].name}</b>?`, speak: `ภาพคลี่ไหน พับแล้วได้${SOLIDS[ans].name}`, visual: draw3D(ans, col), layout: "pics",
+      options: opts.map((k, i) => ({ html: drawNet(k, col + i + 1), correct: k === ans, name: "ภาพคลี่ของ" + SOLIDS[k].name })),
+      explain: `${SOLIDS[ans].name} คลี่ออกมาแล้วเป็นแบบนี้`,
+    };
+  },
+  fev() {
+    const kind = pick(["cube", "cuboid", "sqpyramid", "triprism", "tripyramid"]), [F, E, V] = SOLIDS[kind].f;
+    const which = rnd(3), word = ["หน้า", "สัน", "จุดยอด"][which], n = [F, E, V][which];
+    return {
+      topic: "fev", prompt: `<b>${SOLIDS[kind].name}</b> มีกี่<b>${word}</b>?`, speak: `${SOLIDS[kind].name} มีกี่${word}`, visual: draw3D(kind, rnd(6)), layout: "text",
+      options: numOpts(n, makeOptions(n, [F, E, V, n + 1, n - 1, n + 2], 1), word),
+      explain: `${SOLIDS[kind].name} มี ${F} หน้า ${E} สัน ${V} จุดยอด`, tip: word === "สัน" ? "สัน คือ เส้นที่หน้าสองหน้ามาชนกัน" : word === "จุดยอด" ? "จุดยอด คือ มุมแหลมที่สันหลายเส้นมาพบกัน" : "",
+    };
+  },
+  cubeNetYN(hard) {
+    const ok = Math.random() < .5, cells = ok ? randomValidNet() : randomInvalidNet(hard), col = rnd(6);
+    return {
+      topic: "cube", prompt: `ภาพคลี่นี้ พับเป็น<b>ลูกบาศก์</b>ได้ไหม?`, speak: "ภาพคลี่นี้ พับเป็นลูกบาศก์ได้ไหม", visual: drawCubeNet(cells, { color: PAL[col][1] }), layout: "text",
+      options: [{ html: "✅ ได้", correct: ok, name: "ได้" }, { html: "❌ ไม่ได้", correct: !ok, name: "ไม่ได้" }],
+      explain: ok ? "พับได้ครบ 6 หน้า ไม่ทับกันเลย" : "พับแล้วจะมีหน้าที่ทับกัน และมีด้านที่เปิดโล่ง", fold: { cells },
+    };
+  },
+  cubeNetPick(hard) {
+    const good = randomValidNet(), seen = new Set([canonKey(good)]), bads = [];
+    while (bads.length < 3) { const b = randomInvalidNet(hard), k = canonKey(b); if (!seen.has(k)) { seen.add(k); bads.push(b); } }
+    const col = rnd(6), all = shuffle([good, ...bads]);
+    return {
+      topic: "cube", prompt: `ภาพคลี่ไหน พับเป็น<b>ลูกบาศก์</b>ได้?`, speak: "ภาพคลี่ไหน พับเป็นลูกบาศก์ได้", visual: draw3D("cube", col), layout: "pics",
+      options: all.map((c, i) => ({ html: drawCubeNet(c, { color: PAL[col][1] }), correct: c === good, name: "ภาพคลี่แบบที่ " + (i + 1) })),
+      explain: "ลองนึกภาพพับทีละหน้า ต้องได้ 6 หน้าไม่ทับกัน", fold: { cells: good },
+    };
+  },
+  opposite() {
+    const cells = randomValidNet(), { info } = foldInfo(cells);
+    const labels = shuffle([1, 2, 3, 4, 5, 6]), t = rnd(6), oppFace = OPP[info[t].face];
+    const j = info.findIndex(f => f.face === oppFace), ans = labels[j];
+    const others = shuffle(labels.filter(v => v !== labels[t] && v !== ans)).slice(0, 3);
+    return {
+      topic: "cube", prompt: `พับเป็นลูกบาศก์แล้ว หน้าที่อยู่<b>ตรงข้าม</b>กับหน้าเลข <b>${labels[t]}</b> คือเลขอะไร?`,
+      speak: `พับเป็นลูกบาศก์แล้ว หน้าที่อยู่ตรงข้ามกับหน้าเลข ${labels[t]} คือเลขอะไร`, visual: drawCubeNet(cells, { labels, highlight: t }), layout: "text",
+      options: shuffle([ans, ...others]).map(v => ({ html: `<span class="dot" style="background:${FACECOL[v - 1]}">${v}</span>`, correct: v === ans, name: String(v) })),
+      explain: `หน้าเลข ${labels[t]} อยู่ตรงข้ามกับหน้าเลข ${ans}`, tip: "หน้าที่อยู่ตรงข้ามกัน จะไม่ติดกันในภาพคลี่เลย", fold: { cells, labels }, ans,
+    };
+  },
+  areaCube() {
+    const a = 2 + rnd(8), sa = 6 * a * a;
+    return {
+      topic: "area", prompt: `ลูกบาศก์ยาวด้านละ <b>${a} ซม.</b> มีพื้นที่ผิวทั้งหมดกี่ ตร.ซม.?`, speak: `ลูกบาศก์ยาวด้านละ ${a} เซนติเมตร มีพื้นที่ผิวทั้งหมดกี่ตารางเซนติเมตร`,
+      visual: drawCubeNet(randomValidNet(), { color: "#FFE08A" }), layout: "text",
+      options: numOpts(sa, makeOptions(sa, [4 * a * a, a * a * a, 5 * a * a, 12 * a, 6 * a], a), "ตร.ซม."),
+      explain: `พื้นที่ผิว = 6 × ${a} × ${a} = ${sa} ตร.ซม.`, tip: "ลูกบาศก์มี 6 หน้า แต่ละหน้าเป็นสี่เหลี่ยมจัตุรัสเท่ากัน", dims: { a },
+    };
+  },
+  areaCuboid() {
+    let L, W, H; do { L = 3 + rnd(7); W = 2 + rnd(5); H = 2 + rnd(6); } while (L === W || W === H || L === H || W > L);
+    const sa = 2 * (L * W + L * H + W * H);
+    return {
+      topic: "area", prompt: `ภาพคลี่ทรงสี่เหลี่ยมมุมฉาก (หน่วยเป็น ซม.) มีพื้นที่ผิวทั้งหมดกี่ ตร.ซม.?`, speak: `ทรงสี่เหลี่ยมมุมฉาก ยาว ${L} กว้าง ${W} สูง ${H} เซนติเมตร มีพื้นที่ผิวกี่ตารางเซนติเมตร`,
+      visual: drawCuboidNetLabeled(L, W, H), layout: "text",
+      options: numOpts(sa, makeOptions(sa, [L * W + L * H + W * H, L * W * H, 2 * (L * W + L * H) + W * H, sa + L * W, sa - W * H], 2), "ตร.ซม."),
+      explain: `พื้นที่ผิว = 2 × (${L}×${W} + ${L}×${H} + ${W}×${H}) = 2 × (${L * W} + ${L * H} + ${W * H}) = ${sa} ตร.ซม.`,
+      tip: "ภาพคลี่มีสี่เหลี่ยมผืนผ้า 3 คู่ คู่ละขนาดเท่ากัน", dims: { L, W, H },
+    };
+  },
+};
+
+const GRADES = [
+  { id: "K", name: "อนุบาล", emoji: "🧸", col: 0, stages: [["pick2D:1"], ["pick2D:1", "count2D:1"], ["object3D:1", "pick2D:1"]] },
+  { id: "P1", name: "ป.1", emoji: "🐣", col: 1, stages: [["pick2D"], ["object3D:1", "pick2D"], ["name3D", "object3D"]] },
+  { id: "P2", name: "ป.2", emoji: "🐢", col: 2, stages: [["count2D"], ["faceShape"], ["name3D:1", "faceShape", "count2D"]] },
+  { id: "P3", name: "ป.3", emoji: "🦊", col: 3, stages: [["net2solid:1"], ["solid2net:1"], ["net2solid:1", "solid2net:1", "faceShape"]] },
+  { id: "P4", name: "ป.4", emoji: "🐬", col: 4, stages: [["net2solid"], ["solid2net"], ["net2solid", "solid2net", "fev"]] },
+  { id: "P5", name: "ป.5", emoji: "🦉", col: 5, stages: [["cubeNetYN"], ["cubeNetPick", "fev"], ["cubeNetPick:1", "cubeNetYN:1", "fev"]] },
+  { id: "P6", name: "ป.6", emoji: "🚀", col: 3, stages: [["opposite"], ["areaCube", "areaCuboid"], ["opposite", "areaCuboid", "cubeNetPick:1", "solid2net"]] },
+];
+const STAGE_NAMES = ["ด่าน 1", "ด่าน 2", "ด่านท้าทาย"];
+const Q_PER_STAGE = 8;
+function buildStage(gi, si) {
+  const list = GRADES[gi].stages[si], qs = [];
+  let lastPrompt = "";
+  for (let i = 0; i < Q_PER_STAGE; i++) {
+    let q, n = 0;
+    do { const [t, arg] = list[i % list.length].split(":"); q = GEN[t](arg === "1"); n++; } while (q.prompt === lastPrompt && n < 6);
+    lastPrompt = q.prompt; q.options = shuffle(q.options.map(o => o)); if (q.layout === "text" && q.options.length === 2) q.options.sort((a, b) => (a.name === "ได้" ? -1 : 1));
+    qs.push(q);
+  }
+  return shuffle(qs);
+}
+const starsFor = c => c >= 7 ? 3 : c >= 5 ? 2 : c >= 3 ? 1 : 0;
+const PASS_STARS = 2;
+
+if (typeof module !== "undefined") module.exports = { sha256, hmac, makeCode, checkCode, normCode, foldInfo, VALID_NETS, normCells, canonKey, transformCells, randomValidNet, randomInvalidNet, GEN, GRADES, buildStage, starsFor, OPP, SOLIDS, SHAPES2D };
+/* ================= CONFIG (แก้ได้) ================= */
+const SHOP_CONTACT = "ขอรหัสเปิดใช้งานได้จากผู้ขาย"; // เช่น "ซื้อรหัส: LINE @yourshop"
+const FOLD_SIGN = -1; // พับออกด้านหลัง ให้ด้านหน้าของทุกหน้าอยู่นอกกล่อง
+
+/* ================= STORAGE ================= */
+const $ = id => document.getElementById(id);
+let storeOK = true; const mem = {};
+const LS = {
+  get(k) { try { const v = localStorage.getItem(k); return v === null ? (k in mem ? mem[k] : null) : v; } catch (e) { storeOK = false; return k in mem ? mem[k] : null; } },
+  set(k, v) { mem[k] = v; try { localStorage.setItem(k, v); } catch (e) { storeOK = false; } },
+};
+function deviceId() {
+  let d = LS.get("gn_dev");
+  if (!d || normCode(d).length !== 8) {
+    const r = new Uint8Array(8); crypto.getRandomValues(r);
+    d = Array.from(r, b => B32[b & 31]).join(""); LS.set("gn_dev", d);
+  }
+  return normCode(d);
+}
+let DB = { players: {}, current: null, sound: true };
+function loadDB() { try { const s = JSON.parse(LS.get("gn_data_v1") || "null"); if (s && s.players) DB = Object.assign(DB, s); } catch (e) {} }
+function saveDB() { LS.set("gn_data_v1", JSON.stringify(DB)); }
+const P = () => DB.players[DB.current];
+function newStats() { return { answered: 0, correct: 0, bestStreak: 0, timeSec: 0, stages: {}, topics: {}, history: [] }; }
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+/* ================= SCREENS ================= */
+const SCREENS = ["lock", "players", "map", "play", "result", "stats"];
+function show(id) { SCREENS.forEach(s => $(s).hidden = s !== id); window.scrollTo(0, 0); if (id !== "lock") stopHero(); }
+function toast(t) { const d = document.createElement("div"); d.className = "toast"; d.textContent = t; document.body.appendChild(d); setTimeout(() => d.remove(), 1800); }
+function confetti(n = 60) {
+  const box = document.createElement("div"); box.className = "confetti"; const cols = ["#FF6B5E", "#FFC93C", "#3DBE6B", "#2F7BEA", "#8A5CF6", "#FF7EB6"];
+  for (let i = 0; i < n; i++) { const c = document.createElement("i"); c.style.left = Math.random() * 100 + "%"; c.style.background = pick(cols); c.style.borderRadius = Math.random() < .4 ? "50%" : "2px"; c.style.animationDuration = 1.8 + Math.random() * 1.6 + "s"; c.style.animationDelay = Math.random() * .5 + "s"; box.appendChild(c); }
+  document.body.appendChild(box); setTimeout(() => box.remove(), 4200);
+}
+
+/* ================= SOUND & SPEECH ================= */
+let AC = null;
+function tone(freqs, dur = .12, type = "triangle") {
+  if (!DB.sound) return;
+  try {
+    AC = AC || new (window.AudioContext || window.webkitAudioContext)();
+    freqs.forEach((f, i) => { const o = AC.createOscillator(), g = AC.createGain(), t = AC.currentTime + i * dur; o.type = type; o.frequency.value = f; g.gain.setValueAtTime(.0001, t); g.gain.exponentialRampToValueAtTime(.18, t + .02); g.gain.exponentialRampToValueAtTime(.0001, t + dur); o.connect(g).connect(AC.destination); o.start(t); o.stop(t + dur + .02); });
+  } catch (e) {}
+}
+const sfx = { ok: () => tone([660, 880, 1175]), no: () => tone([330, 247], .16, "sine"), win: () => tone([523, 659, 784, 1047, 1319], .13), tap: () => tone([520], .05) };
+let thVoice = null;
+function findVoice() { try { thVoice = (speechSynthesis.getVoices() || []).find(v => /^th/i.test(v.lang)) || null; } catch (e) { thVoice = null; } $("speak").hidden = !thVoice; }
+if ("speechSynthesis" in window) { findVoice(); speechSynthesis.onvoiceschanged = findVoice; }
+function say(t) { if (!thVoice) return; try { speechSynthesis.cancel(); const u = new SpeechSynthesisUtterance(t); u.voice = thVoice; u.lang = thVoice.lang; u.rate = .9; speechSynthesis.speak(u); } catch (e) {} }
+
+/* ================= FOLD VIEWER ================= */
+function buildFold(stage, cells, opt = {}) {
+  stage.innerHTML = "";
+  const S = opt.size || 52, info = foldInfo(cells).info;
+  const w = Math.max(...cells.map(c => c[0])) + 1, h = Math.max(...cells.map(c => c[1])) + 1;
+  const spin = document.createElement("div"); spin.className = "fspin";
+  const net = document.createElement("div"); net.className = "fnet";
+  net.style.width = w * S + "px"; net.style.height = h * S + "px"; net.style.setProperty("--s", S + "px");
+  const a = 90 * FOLD_SIGN; net.style.setProperty("--aR", -a + "deg"); net.style.setProperty("--aL", a + "deg"); net.style.setProperty("--aD", a + "deg"); net.style.setProperty("--aU", -a + "deg");
+  const els = cells.map((c, i) => {
+    const d = document.createElement("div"); d.className = "fface";
+    d.style.background = opt.labels ? FACECOL[opt.labels[i] - 1] : (opt.colors ? opt.colors[i % opt.colors.length] : "#79AEF5");
+    if (opt.labels) d.textContent = opt.labels[i];
+    return d;
+  });
+  const maxD = Math.max(...info.filter(Boolean).map(f => f.depth));
+  els.forEach((d, i) => {
+    if (i === 0) { d.style.left = cells[0][0] * S + "px"; d.style.top = cells[0][1] * S + "px"; net.appendChild(d); }
+    else if (info[i]) { d.dataset.d = info[i].dir; els[info[i].parent].appendChild(d); }
+  });
+  const rcx = cells[0][0] * S + S / 2, rcy = cells[0][1] * S + S / 2;
+  const flatT = "translate(0,0)";
+  const foldT = `translate(${w * S / 2 - rcx}px,${h * S / 2 - rcy}px) rotateX(-24deg) rotateY(32deg)`;
+  net.style.transformOrigin = `${rcx}px ${rcy}px ${FOLD_SIGN * S / 2}px`;
+  net.style.transform = flatT;
+  spin.style.transformOrigin = `50% 50% ${FOLD_SIGN * S / 2}px`;
+  spin.appendChild(net); stage.appendChild(spin);
+  return {
+    fold() {
+      els.forEach((d, i) => { if (info[i]) d.style.transitionDelay = (info[i].depth - 1) * .45 + "s"; });
+      net.style.transitionDelay = "0s"; net.style.transform = foldT; net.classList.add("folded");
+      clearTimeout(this._t); this._t = setTimeout(() => spin.classList.add("go"), (maxD * .45 + .8) * 1000);
+    },
+    unfold() {
+      clearTimeout(this._t); spin.classList.remove("go");
+      els.forEach((d, i) => { if (info[i]) d.style.transitionDelay = (maxD - info[i].depth) * .35 + "s"; });
+      net.classList.remove("folded"); net.style.transitionDelay = maxD * .35 + "s"; net.style.transform = flatT;
+    },
+  };
+}
+let heroT = null, heroF = null;
+function startHero() {
+  const cols = ["#FF6B5E", "#FFC93C", "#3DBE6B", "#2F7BEA", "#8A5CF6", "#FF7EB6"];
+  heroF = buildFold($("heroStage"), VALID_NETS[2], { colors: cols, size: 44 });
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  let f = false; const loop = () => { f = !f; f ? heroF.fold() : heroF.unfold(); heroT = setTimeout(loop, f ? 5200 : 2600); };
+  heroT = setTimeout(loop, 700);
+}
+function stopHero() { clearTimeout(heroT); }
+let foldCtl = null;
+function openFold(fold) {
+  const ok = foldInfo(fold.cells).valid;
+  foldCtl = buildFold($("foldStage"), fold.cells, { size: 60, labels: fold.labels, colors: fold.labels ? null : ["#79AEF5", "#FFC93C", "#7FDB9E", "#FF9E8F", "#B79CFA", "#FFB3D4"] });
+  $("foldNote").textContent = ok ? "พับครบ 6 หน้า ปิดสนิทเป็นลูกบาศก์ 🎉" : "ดูสิ! บางหน้าพับแล้วทับกัน และมีด้านที่เปิดโล่ง";
+  $("foldModal").hidden = false; setTimeout(() => foldCtl.fold(), 300); $("foldClose").focus();
+}
+$("foldBtn").onclick = () => foldCtl && foldCtl.fold();
+$("unfoldBtn").onclick = () => foldCtl && foldCtl.unfold();
+$("foldClose").onclick = () => { $("foldModal").hidden = true; };
+$("foldModal").onclick = e => { if (e.target === $("foldModal")) $("foldModal").hidden = true; };
+
+/* ================= LOCK ================= */
+const DEV = deviceId();
+function isUnlocked() { const c = LS.get("gn_act"); return !!c && checkCode(DEV, c); }
+function showLock() {
+  $("devId").textContent = fmtDevice(DEV); $("contact").textContent = SHOP_CONTACT;
+  $("storeWarn").hidden = storeOK; show("lock"); startHero();
+}
+$("copyDev").onclick = async () => {
+  const t = fmtDevice(DEV);
+  try { await navigator.clipboard.writeText(t); toast("คัดลอกรหัสเครื่องแล้ว"); } catch (e) { toast("รหัสเครื่อง: " + t); }
+};
+$("code").addEventListener("input", e => {
+  let v = normCode(e.target.value).slice(0, 10); e.target.value = v.length > 5 ? v.slice(0, 5) + "-" + v.slice(5) : v; $("codeHint").textContent = ""; $("codeHint").className = "hint";
+});
+$("code").addEventListener("keydown", e => { if (e.key === "Enter") $("unlock").click(); });
+$("unlock").onclick = () => {
+  const v = $("code").value;
+  if (normCode(v).length !== 10) { $("codeHint").textContent = "รหัสเปิดใช้งานมี 10 ตัวอักษร ลองตรวจอีกครั้ง"; $("codeHint").className = "hint err"; return; }
+  if (!checkCode(DEV, v)) { $("codeHint").textContent = "รหัสนี้ใช้กับเครื่องนี้ไม่ได้ ตรวจว่าส่งรหัสเครื่องให้ผู้ขายถูกต้อง"; $("codeHint").className = "hint err"; sfx.no(); return; }
+  LS.set("gn_act", normCode(v)); $("codeHint").textContent = "เปิดใช้งานสำเร็จ! 🎉"; $("codeHint").className = "hint ok"; sfx.win(); confetti(40);
+  setTimeout(goPlayers, 900);
+};
+
+/* ================= PLAYERS ================= */
+const AVATARS = ["🦁", "🐼", "🦄", "🐸", "🐯", "🐰", "🐙", "🦖", "🐧", "🦊", "🐨", "🐝"];
+let pickedAva = AVATARS[0];
+function totalStars(p) { return Object.values(p.stats.stages).reduce((t, s) => t + (s.stars || 0), 0); }
+function goPlayers() {
+  const ids = Object.keys(DB.players);
+  $("plist").innerHTML = ids.map(id => { const p = DB.players[id]; return `<div class="row"><button class="pcard grow" data-id="${id}"><span class="ava">${p.ava}</span><span class="grow"><span class="nm">${esc(p.name)}</span><br><span class="muted">⭐ ${totalStars(p)} ดาว</span></span><span style="font-size:1.4rem">▶</span></button><button class="pdel" data-del="${id}" aria-label="ลบ ${esc(p.name)}">🗑️</button></div>`; }).join("");
+  $("avpick").innerHTML = AVATARS.map(a => `<button data-a="${a}" aria-pressed="${a === pickedAva}" aria-label="ตัวการ์ตูน ${a}">${a}</button>`).join("");
+  $("newPlayer").querySelector("h3").textContent = ids.length ? "เพิ่มผู้เล่นใหม่" : "สวัสดี! หนูชื่ออะไรเอ่ย?";
+  show("players");
+}
+$("plist").onclick = e => {
+  const del = e.target.closest("[data-del]");
+  if (del) { const p = DB.players[del.dataset.del]; if (confirm(`ลบผู้เล่น "${p.name}" และสถิติทั้งหมดใช่ไหม?`)) { delete DB.players[del.dataset.del]; if (DB.current === del.dataset.del) DB.current = null; saveDB(); goPlayers(); } return; }
+  const b = e.target.closest("[data-id]"); if (b) { DB.current = b.dataset.id; saveDB(); sfx.tap(); goMap(); }
+};
+$("avpick").onclick = e => { const b = e.target.closest("[data-a]"); if (!b) return; pickedAva = b.dataset.a; $("avpick").querySelectorAll("button").forEach(x => x.setAttribute("aria-pressed", x === b)); };
+$("addP").onclick = () => {
+  const n = $("pname").value.trim();
+  if (!n) { $("pname").focus(); toast("พิมพ์ชื่อก่อนนะ"); return; }
+  const id = "p" + Date.now().toString(36);
+  DB.players[id] = { name: n.slice(0, 20), ava: pickedAva, created: Date.now(), stats: newStats() }; DB.current = id; saveDB();
+  $("pname").value = ""; sfx.win(); toast(`ยินดีต้อนรับ ${n}! 🎈`); goMap();
+};
+$("pname").addEventListener("keydown", e => { if (e.key === "Enter") $("addP").click(); });
+
+/* ================= MAP ================= */
+const stageKey = (g, s) => GRADES[g].id + "-" + s;
+function stageOpen(p, g, s) { return s === 0 || ((p.stats.stages[stageKey(g, s - 1)] || {}).stars || 0) >= PASS_STARS; }
+const GCOL = ["#FF6B5E", "#FFC93C", "#3DBE6B", "#2F7BEA", "#8A5CF6", "#FF7EB6", "#2F7BEA"];
+function goMap() {
+  const p = P(); if (!p) return goPlayers();
+  $("mAva").textContent = p.ava; $("mName").textContent = p.name;
+  $("soundBtn").textContent = DB.sound ? "🔊" : "🔇";
+  $("tStars").textContent = totalStars(p) + " / " + GRADES.length * 9;
+  $("tAcc").textContent = p.stats.answered ? Math.round(p.stats.correct / p.stats.answered * 100) + "%" : "–";
+  $("grades").innerHTML = GRADES.map((g, gi) => `<div class="grade"><div class="gbadge" style="background:${GCOL[gi]}"><span class="e">${g.emoji}</span><span class="n">${g.name}</span></div><div class="stages">${g.stages.map((_, si) => {
+    const st = p.stats.stages[stageKey(gi, si)] || {}, open = stageOpen(p, gi, si), s = st.stars || 0;
+    return `<button class="stg${open ? "" : " lock"}" data-g="${gi}" data-s="${si}" ${open ? "" : 'aria-disabled="true"'} aria-label="${g.name} ${STAGE_NAMES[si]}${open ? "" : " ล็อกอยู่"}"><div class="t">${STAGE_NAMES[si]}</div><div class="s">${open ? "★".repeat(s) + "☆".repeat(3 - s) : "🔒"}</div></button>`;
+  }).join("")}</div></div>`).join("");
+  show("map");
+}
+$("grades").onclick = e => {
+  const b = e.target.closest(".stg"); if (!b) return;
+  if (b.classList.contains("lock")) { toast("เก็บให้ได้ 2 ดาวในด่านก่อนหน้า เพื่อปลดล็อก"); return; }
+  startStage(+b.dataset.g, +b.dataset.s);
+};
+$("whoBtn").onclick = goPlayers;
+$("soundBtn").onclick = () => { DB.sound = !DB.sound; saveDB(); $("soundBtn").textContent = DB.sound ? "🔊" : "🔇"; sfx.tap(); };
+$("statsBtn").onclick = goStats;
+
+/* ================= PLAY ================= */
+const PRAISE = ["เก่งมาก! 🌟", "ถูกต้อง! สุดยอดไปเลย", "ว้าว! คิดได้ไวมาก ⚡", "เยี่ยมไปเลย {n}!", "ใช่แล้ว! เก่งจริง ๆ", "ฉลาดสุด ๆ 🧠", "ปรบมือให้เลย 👏", "{n} ตาไวมาก! 👀", "ถูกเป๊ะ! 🎯"];
+const COMFORT = ["ไม่เป็นไรนะ ข้อหน้าลองใหม่ 💪", "เกือบแล้ว! มาดูคำตอบที่ถูกกัน", "ผิดได้ ไม่เป็นไร เราได้เรียนรู้แล้ว 🌱", "ค่อย ๆ คิด {n} ทำได้แน่นอน", "สู้ ๆ นะ {n}! ข้อต่อไปเอาใหม่"];
+const STREAK_MSG = { 3: "ถูกติดกัน 3 ข้อ! 🔥", 5: "5 ข้อติด! ไฟลุกแล้ว 🔥🔥", 8: "ถูกหมดทุกข้อ! สุดยอดนักพับ 🏆" };
+let G = null;
+function startStage(gi, si) {
+  G = { gi, si, qs: buildStage(gi, si), i: 0, correct: 0, streak: 0, marks: [], t0: Date.now(), qt: Date.now() };
+  $("stageLabel").textContent = `${GRADES[gi].name} · ${STAGE_NAMES[si]}`;
+  show("play"); renderQ();
+}
+function renderProg() { $("prog").innerHTML = G.qs.map((_, i) => `<i class="${G.marks[i] || (i === G.i ? "cur" : "")}"></i>`).join(""); $("streak").textContent = G.streak >= 2 ? "🔥" + G.streak : ""; }
+function renderQ() {
+  const q = G.qs[G.i]; G.qt = Date.now(); G.done = false;
+  $("qtext").innerHTML = q.prompt; $("visual").innerHTML = q.visual || ""; $("visual").hidden = !q.visual;
+  const o = $("opts"); o.className = "opts " + q.layout;
+  o.innerHTML = q.options.map((op, k) => `<button class="opt" data-k="${k}" aria-label="${esc(op.name)}">${op.html}</button>`).join("");
+  $("fb").hidden = true; renderProg();
+}
+$("speak").onclick = () => G && say(G.qs[G.i].speak);
+$("opts").onclick = e => {
+  const b = e.target.closest(".opt"); if (!b || !G || G.done) return; G.done = true;
+  const q = G.qs[G.i], op = q.options[+b.dataset.k], ok = op.correct, p = P(), s = p.stats, name = p.name;
+  [...$("opts").children].forEach((x, k) => { x.disabled = true; if (q.options[k].correct) x.classList.add("ok"); else if (x !== b) x.classList.add("dim"); });
+  if (!ok) b.classList.add("no");
+  s.answered++; s.timeSec += Math.min(120, Math.round((Date.now() - G.qt) / 1000));
+  const tp = s.topics[q.topic] || (s.topics[q.topic] = { a: 0, c: 0 }); tp.a++;
+  let head;
+  if (ok) { G.correct++; G.streak++; s.correct++; tp.c++; s.bestStreak = Math.max(s.bestStreak, G.streak); G.marks[G.i] = "ok"; sfx.ok(); head = STREAK_MSG[G.streak] || pick(PRAISE); }
+  else { G.streak = 0; G.marks[G.i] = "no"; sfx.no(); head = pick(COMFORT); }
+  saveDB();
+  const fb = $("fb"); fb.className = "fb " + (ok ? "ok" : "no");
+  const last = G.i === G.qs.length - 1;
+  fb.innerHTML = `<div class="big">${esc(head.replace("{n}", name))}</div><div>${ok ? "" : "คำตอบที่ถูก: <b>" + esc(q.options.find(x => x.correct).name) + "</b> · "}${esc(q.explain)}</div>${q.tip ? `<div class="tip">💡 ${esc(q.tip)}</div>` : ""}
+    <div class="acts">${q.fold ? '<button class="btn sm sea" id="seeFold">ดูการพับ 📦</button>' : ""}<button class="btn leaf grow" id="nextQ">${last ? "ดูผลคะแนน 🏁" : "ข้อต่อไป ➜"}</button></div>`;
+  fb.hidden = false; renderProg();
+  if (q.fold) $("seeFold").onclick = () => openFold(q.fold);
+  $("nextQ").onclick = () => { if (last) finishStage(); else { G.i++; renderQ(); window.scrollTo({ top: 0, behavior: "smooth" }); } };
+  setTimeout(() => fb.scrollIntoView({ behavior: "smooth", block: "nearest" }), 60);
+  $("nextQ").focus({ preventScroll: true });
+};
+$("quit").onclick = () => { if (!G || G.i === 0 && !G.done || confirm("ออกจากด่านนี้ใช่ไหม? ข้อที่ตอบไปแล้วจะนับในสถิติ")) goMap(); };
+
+/* ================= RESULT ================= */
+function finishStage() {
+  const p = P(), s = p.stats, k = stageKey(G.gi, G.si), stars = starsFor(G.correct);
+  const st = s.stages[k] || (s.stages[k] = { stars: 0, best: 0, plays: 0 });
+  const before = st.stars, wasOpen = G.si < 2 ? stageOpen(p, G.gi, G.si + 1) : true;
+  st.plays++; st.best = Math.max(st.best, G.correct); st.stars = Math.max(st.stars, stars);
+  s.history.unshift({ d: Date.now(), g: G.gi, s: G.si, c: G.correct, n: G.qs.length }); s.history = s.history.slice(0, 20);
+  saveDB();
+  const name = p.name, n = G.qs.length;
+  $("rTitle").textContent = stars === 3 ? `สุดยอดเลย ${name}! 🏆` : stars === 2 ? `เก่งมาก ${name}! 🎉` : stars === 1 ? `ทำได้ดี ${name}! 👍` : `สู้ต่อนะ ${name}! 💪`;
+  $("rScore").textContent = `${G.correct} / ${n}`;
+  let msg = stars === 3 ? "ได้ 3 ดาวเต็ม! เป็นนักพับรูปทรงตัวจริง" : stars === 2 ? "ผ่านด่านแล้ว! ด่านต่อไปเปิดรอแล้ว" : stars === 1 ? "อีกนิดเดียว! ได้ 2 ดาวเมื่อไหร่ ด่านต่อไปจะเปิด" : "ไม่เป็นไรเลย ลองเล่นอีกรอบ เดี๋ยวก็เก่งขึ้น";
+  if (stars > before && before > 0) msg += " · ทำลายสถิติเดิมด้วย! 📈";
+  const nowOpen = G.si < 2 && stageOpen(p, G.gi, G.si + 1);
+  if (nowOpen && !wasOpen) msg += ` · ปลดล็อก${STAGE_NAMES[G.si + 1]}แล้ว 🔓`;
+  if (G.si === 2 && stars >= PASS_STARS && G.gi < GRADES.length - 1) msg += ` · ลองไปต่อ ${GRADES[G.gi + 1].name} กันไหม?`;
+  $("rMsg").textContent = msg;
+  const nx = nextStage(); $("rNext").hidden = !nx || stars < PASS_STARS;
+  const iEls = $("rStars").children; [...iEls].forEach(i => i.classList.remove("on"));
+  show("result");
+  [...iEls].forEach((i, k2) => { if (k2 < stars) setTimeout(() => { i.classList.add("on"); tone([600 + k2 * 200], .12); }, 400 + k2 * 380); });
+  if (stars >= 2) setTimeout(() => { confetti(stars === 3 ? 90 : 45); sfx.win(); }, 400 + stars * 380);
+}
+function nextStage() { if (G.si < 2) return [G.gi, G.si + 1]; if (G.gi < GRADES.length - 1) return [G.gi + 1, 0]; return null; }
+$("rNext").onclick = () => { const nx = nextStage(); if (nx) startStage(...nx); };
+$("rAgain").onclick = () => startStage(G.gi, G.si);
+$("rMap").onclick = goMap;
+
+/* ================= STATS ================= */
+function fmtTime(sec) { const m = Math.round(sec / 60); return m < 60 ? m + " นาที" : Math.floor(m / 60) + " ชม. " + (m % 60) + " นาที"; }
+function goStats() {
+  const p = P(), s = p.stats; $("sName").textContent = p.name;
+  const acc = s.answered ? Math.round(s.correct / s.answered * 100) + "%" : "–";
+  const passed = Object.values(s.stages).filter(x => x.stars >= PASS_STARS).length;
+  $("sgrid").innerHTML = [["ตอบไปแล้ว", s.answered + " ข้อ"], ["ตอบถูก", acc], ["ดาวรวม", totalStars(p) + " / " + GRADES.length * 9], ["ผ่านแล้ว", passed + " / " + GRADES.length * 3 + " ด่าน"], ["ถูกติดกันสูงสุด", s.bestStreak + " ข้อ 🔥"], ["เวลาฝึก", fmtTime(s.timeSec)]]
+    .map(([a, b]) => `<div><span class="muted">${a}</span><b>${b}</b></div>`).join("");
+  const tk = Object.keys(TOPICS).filter(k => s.topics[k]);
+  $("sTopics").innerHTML = tk.length ? tk.map(k => { const t = s.topics[k], pc = Math.round(t.c / t.a * 100); return `<div class="bar"><div class="lab"><span>${TOPICS[k]}</span><span>${t.c}/${t.a} · ${pc}%</span></div><div class="tr"><i style="width:${pc}%;background:${pc >= 80 ? "var(--leaf)" : pc >= 50 ? "var(--sun)" : "var(--tomato)"}"></i></div></div>`; }).join("")
+    : `<p class="muted">ยังไม่มีข้อมูล ไปเล่นด่านแรกกันเลย!</p>`;
+  $("sGrades").innerHTML = GRADES.map((g, gi) => { const st = g.stages.reduce((t, _, si) => t + ((s.stages[stageKey(gi, si)] || {}).stars || 0), 0); return `<div class="bar"><div class="lab"><span>${g.emoji} ${g.name}</span><span>${st} / 9 ⭐</span></div><div class="tr"><i style="width:${st / 9 * 100}%;background:var(--sun)"></i></div></div>`; }).join("");
+  $("sHist").innerHTML = s.history.length ? s.history.map(h => `<li><span>${GRADES[h.g].name} ${STAGE_NAMES[h.s]}</span><span>${h.c}/${h.n} ${"★".repeat(starsFor(h.c))}</span><span class="muted">${new Date(h.d).toLocaleDateString("th-TH", { day: "numeric", month: "short" })}</span></li>`).join("") : `<li class="muted">ยังไม่เคยเล่น</li>`;
+  show("stats");
+}
+$("sBack").onclick = goMap;
+
+/* ================= BOOT ================= */
+loadDB();
+if (!isUnlocked()) showLock();
+else if (DB.current && DB.players[DB.current]) goMap();
+else goPlayers();
+</script></body></html>
